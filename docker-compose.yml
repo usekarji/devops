@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: ./images
+      dockerfile: ApiDevDockerfile
+    volumes:
+      - ./api:/usr/src/api:cached
+    # NEW
+    ports:
+      # machine:container
+      - 3001:3000
+    command: yarn start
+    env_file:
+      - ./env/dev.env
+
+  devdb:
+    image: mysql:5.7
+    # keeps db data local and easy to reset
+    volumes:
+      - ./devdb:/var/lib/mysql
+      # conf.d is a folder, and it reads whatever `.cnf` files are in there
+      - ./env:/etc/mysql/conf.d
+    ports:
+      - 3306:3306
+    environment: 
+      - MYSQL_ROOT_PASSWORD=apidevroot
+      - MYSQL_DATABASE=apidevdb
+      - MYSQL_USER=apidevuser
+      - MYSQL_PASSWORD=apidevpwd
+      - MYSQL_HOST_NAME=devdb
+      - NODE_ENV=development
+    env_file:
+      - ./env/dev.env

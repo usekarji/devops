@@ -1,27 +1,20 @@
-version: '3'
-
-services:
-  api:
-    build:
-      context: ./images
-      dockerfile: ApiDevDockerfile
-    volumes:
-      - ./api:/usr/src/api:cached
-    # NEW
-    ports:
-      # machine:container
-      - 3001:3000
-    command: yarn start
-    env_file:
-      - ./env/dev.env
-  devdb:
-    image: mysql:5.7
-    # keeps db data local and easy to reset
-    volumes:
-      - ./devdb:/var/lib/mysql
-      # conf.d is a folder, and it reads whatever `.cnf` files are in there
-      - ./env:/etc/mysql/conf.d
-    ports:
-      - 3306:3306
-    env_file:
-      - ./env/dev.env
+web:
+  build: .
+  command: node index-db.js
+  ports:
+    - "3000:3000"
+  links:
+    - db
+  environment:
+    MYSQL_DATABASE: myapp
+    MYSQL_USER: myapp
+    MYSQL_PASSWORD: mysecurepass
+    MYSQL_HOST: db
+db:
+  image: orchardup/mysql
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_DATABASE: myapp
+    MYSQL_USER: myapp
+    MYSQL_PASSWORD: mysecurepass
